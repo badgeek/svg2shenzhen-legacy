@@ -675,12 +675,20 @@ class Svg2ModExport( object ):
 						items = self.imported.svg.items
 						self.imported.svg.items = []
 				
+				contain_fmask = False
+				contain_bmask = False
 
 				for item in items:
 					if not isinstance( item, svg.Group ):
 						continue
 					if item.name == "Drill":
 						self.imported.svg.items.append( item )
+					if item.name == "F.Mask":
+						if (len(item.items)) > 0:
+							contain_fmask = True
+					if item.name == "B.Mask":
+						if (len(item.items)) > 0:
+							contain_bmask = True
 					
 
 				for item in items:
@@ -695,6 +703,20 @@ class Svg2ModExport( object ):
 										print( "Found SVG layer: {}".format( item.name ) )
 										self.imported.svg.items.append( item )
 										self.layers[ name ] = item
+
+										if (item.name == "F.Cu" and contain_fmask == False):
+											fmask = item
+											fmask.name = "F.Mask"
+											self.imported.svg.items.append( fmask )
+											self.layers[ fmask.name ] = fmask											
+
+										if (item.name == "B.Cu" and contain_bmask == False):
+											fmask = item
+											fmask.name = "B.Mask"
+											self.imported.svg.items.append( fmask )
+											self.layers[ fmask.name ] = fmask	
+
+								
 										break
 						else:
 								self._prune( item.items )
@@ -1307,7 +1329,8 @@ class Svg2ModExportPretty( Svg2ModExport ):
 				'B.Cu' :    "B.Cu",				
 				'Adhes' : "{}.Adhes",
 				'Paste' : "{}.Paste",
-				'SilkS' : "{}.SilkS",
+				'F.SilkS' : "F.SilkS",
+				'B.SilkS' : "B.SilkS",				
 				'F.Mask' :  "F.Mask",
 				'B.Mask' :  "B.Mask",				
 				'CrtYd' : "{}.CrtYd",
