@@ -1,3 +1,6 @@
 *~
 .*.sw?
 *.pyc
+/build
+/svg_to_shenzhen.spec
+/svg2mod.spec
