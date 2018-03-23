@@ -1308,7 +1308,8 @@ class Svg2ModExportPretty( Svg2ModExport ):
 				'Adhes' : "{}.Adhes",
 				'Paste' : "{}.Paste",
 				'SilkS' : "{}.SilkS",
-				'Mask' :  "{}.Mask",
+				'F.Mask' :  "F.Mask",
+				'B.Mask' :  "B.Mask",				
 				'CrtYd' : "{}.CrtYd",
 				'Fab' :   "{}.Fab",
 				'Edge.Cuts' : "Edge.Cuts"
