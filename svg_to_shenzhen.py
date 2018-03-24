@@ -1367,39 +1367,6 @@ class Svg2ModExportPretty( Svg2ModExport ):
 		def _write_wirepad( self ):
 			root = (self.imported.svg.root)
 
-			bbox = self.imported.svg.bbox()
-			start_y = bbox[0].y
-			end_y = bbox[1].y
-			box_height = end_y - start_y
-
-			start_x = bbox[0].x
-			end_x = bbox[1].x
-			box_width = end_x - start_x
-
-
-			height = float(root.attrib['height'].replace("mm", ""))
-			width = float(root.attrib['width'].replace("mm", ""))
-			viewbox = root.attrib['viewBox'].split(' ')
-			viewbox_h = float(viewbox[-1])
-			viewbox_w = float(viewbox[-2])
-
-			scaling = 3.5432598708
-
-			print "BBOX " , bbox
-
-			print "DEBUK VIEWBOX", viewbox_h, viewbox_w
-
-			bb_width_center = box_width*0.264583333*scaling/2
-			bb_height_center = box_height*0.264583333*scaling/2	
-			bb_scaling = box_height*0.264583333*scaling/(box_height*0.264583333)
-
-
-
-			print "DEBUK DOC WIDTH HEIGHT " , width , height
-
-			print "DEBUK BBOX WIDTH HEIGHT " , box_width*0.264583333*scaling , box_height*0.264583333*scaling
-
-
 			pad_string = ""
 			count = 0
 
@@ -1414,12 +1381,22 @@ class Svg2ModExportPretty( Svg2ModExport ):
 			for item in items:
 				# print item.name
 				if (item.name == "Drill"): 
-					# print "debok"
+					item.transform()
+
 					for drill in item.items:
-						count = count + 1;
-						# print vars(drill)
-						pad_x = ((drill.center.x-bb_width_center)/bb_scaling)-bbox[0].x*0.264583333
-						pad_y = ((drill.center.y-bb_height_center)/bb_scaling)-bbox[0].y*0.264583333
+						count = count + 1
+
+						old_center = drill.center
+						drill.transform(item.matrix)
+						new_center = drill.center
+
+						transx = ((new_center.x - old_center.x) * 2 ) / (96/25.4)
+						transy = ((new_center.y - old_center.y) * 2 ) / (96/25.4)
+
+						test = svg.Point(drill.center.x,drill.center.y)
+						new_pad = self.transform_point(test)
+						pad_x = new_pad.x-transx
+						pad_y = new_pad.y-transy
 						pad_string = pad_string + pad_template % (pad_x, pad_y, count)
 			
 			self.output_file.write(pad_string)
