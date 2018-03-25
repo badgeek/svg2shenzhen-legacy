@@ -1381,22 +1381,22 @@ class Svg2ModExportPretty( Svg2ModExport ):
 			for item in items:
 				# print item.name
 				if (item.name == "Drill"): 
-					item.transform()
+					# item.transform()
 
 					for drill in item.items:
 						count = count + 1
-
+						print drill.matrix.vect
 						old_center = drill.center
-						drill.transform(item.matrix)
+						# drill.transform(item.matrix)
 						new_center = drill.center
 
-						transx = ((new_center.x - old_center.x) * 2 ) / (96/25.4)
-						transy = ((new_center.y - old_center.y) * 2 ) / (96/25.4)
+						# transx = ((new_center.x - old_center.x) * 2 ) / (96/25.4)
+						# transy = ((new_center.y - old_center.y) * 2 ) / (96/25.4)
 
-						test = svg.Point(drill.center.x,drill.center.y)
+						test = svg.Point(drill.center.x*1.0665,drill.center.y*1.0665)
 						new_pad = self.transform_point(test)
-						pad_x = new_pad.x-transx
-						pad_y = new_pad.y-transy
+						pad_x = new_pad.x
+						pad_y = new_pad.y
 						pad_string = pad_string + pad_template % (pad_x, pad_y, count)
 			
 			self.output_file.write(pad_string)
