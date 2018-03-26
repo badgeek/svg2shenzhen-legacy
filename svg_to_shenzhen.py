@@ -812,7 +812,6 @@ class Svg2ModExport( object ):
 							layer = self._get_layer_name( name, front )
 							self._write_items( group.items, layer, not front )
 
-				self._write_module_footer( front )
 
 				
 
