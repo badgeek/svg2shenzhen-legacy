@@ -53,6 +53,7 @@ class Transformable:
     '''Abstract class for objects that can be geometrically drawn & transformed'''
     def __init__(self, elt=None):
         # a 'Transformable' is represented as a list of Transformable items
+        self.rotation = 0
         self.items = []
         self.id = hex(id(self))
         # Unit transformation matrix on init
@@ -112,6 +113,7 @@ class Transformable:
                 self.matrix *= Matrix([sx, 0, 0, sy, 0, 0])
 
             if op == 'rotate':
+                self.rotation = arg[0]
                 cosa = math.cos(math.radians(arg[0]))
                 sina = math.sin(math.radians(arg[0]))
                 if len(arg) != 1:
@@ -615,6 +617,7 @@ class Rect(Transformable):
     def __init__(self, elt=None):
         Transformable.__init__(self, elt)
         if elt is not None:
+            self.type = elt.get('type')
             self.P1 = Point(self.xlength(elt.get('x')),
                             self.ylength(elt.get('y')))
 

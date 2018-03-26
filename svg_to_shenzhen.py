@@ -728,7 +728,7 @@ class Svg2ModExport( object ):
 								print( "    Writing polygon with {} points".format(
 										len( points ) )
 								)
-								print "debok " , fill
+								# print "debok " , fill
 								self._write_polygon(
 										points, layer, fill, stroke, stroke_width
 								)
@@ -812,6 +812,94 @@ class Svg2ModExport( object ):
 							layer = self._get_layer_name( name, front )
 							self._write_items( group.items, layer, not front )
 
+				
+		#------------------------------------------------------------------------
+
+		def _write_footprint( self, front ):
+
+				dip_footprint = """
+				(module SMD_Packages:SO-16-N (layer F.Cu) (tedit 0) (tstamp 5AAF3D82)
+					(at %f %f %f)
+					(descr "Module CMS SOJ 16 pins large")
+					(tags "CMS SOJ")
+					(path /5AAF3111)
+					(attr smd)
+					(fp_text reference U1 (at 0.127 -1.27 45) (layer F.SilkS)
+					(effects (font (size 1 1) (thickness 0.15)))
+					)
+					(fp_text value 74HC595 (at 0 1.27 45) (layer F.Fab)
+					(effects (font (size 1 1) (thickness 0.15)))
+					)
+					(fp_line (start -5.588 -0.762) (end -4.826 -0.762) (layer F.SilkS) (width 0.15))
+					(fp_line (start -4.826 -0.762) (end -4.826 0.762) (layer F.SilkS) (width 0.15))
+					(fp_line (start -4.826 0.762) (end -5.588 0.762) (layer F.SilkS) (width 0.15))
+					(fp_line (start 5.588 -2.286) (end 5.588 2.286) (layer F.SilkS) (width 0.15))
+					(fp_line (start 5.588 2.286) (end -5.588 2.286) (layer F.SilkS) (width 0.15))
+					(fp_line (start -5.588 2.286) (end -5.588 -2.286) (layer F.SilkS) (width 0.15))
+					(fp_line (start -5.588 -2.286) (end 5.588 -2.286) (layer F.SilkS) (width 0.15))
+					
+					(model SMD_Packages.3dshapes/SO-16-N.wrl
+					(at (xyz 0 0 0))
+					(scale (xyz 0.5 0.4 0.5))
+					(rotate (xyz 0 0 0))
+					)
+				)
+				"""
+
+				module_name = self._get_module_name( front )
+
+				min_point, max_point = self.imported.svg.bbox()
+				min_point = self.transform_point( min_point, flip = False )
+				max_point = self.transform_point( max_point, flip = False )
+
+				label_offset = 1200
+				label_size = 600
+				label_pen = 120
+
+				if self.use_mm:
+						label_size = self._convert_decimil_to_mm( label_size )
+						label_pen = self._convert_decimil_to_mm( label_pen )
+						reference_y = min_point.y - self._convert_decimil_to_mm( label_offset )
+						value_y = max_point.y + self._convert_decimil_to_mm( label_offset )
+				else:
+						reference_y = min_point.y - label_offset
+						value_y = max_point.y + label_offset
+
+
+				for name, group in self.layers.iteritems():
+
+						if group is None: continue
+						if (name == "F.Cu" or name == "B.Cu"):
+							layer = self._get_layer_name( name, front )
+							for item in group.items:
+								# item.transform()
+								if isinstance( item, svg.Rect ) and hasattr(item, "type"):
+									# print "DEBOK RECT"
+
+									start_xy = self.transform_point(item.segments()[0][0]*1.0666794869689005, not front)
+									end_xy =  self.transform_point(item.segments()[0][2]*1.0666794869689005, not front)
+
+									center_x = start_xy.x + (end_xy.x - start_xy.x)/2
+									center_y = start_xy.y + (end_xy.y - start_xy.y)/2
+									
+									# foot_coord = self.transform_point(item.segments()[0][2]*1.0666794869689005, not front)
+									# print vars(item)
+
+									if (item.type == "dip16"):
+										self.output_file.write(dip_footprint % (center_x, center_y, -1 * float(item.rotation) ))
+									
+									# print item.P1*1.0666794869689005, item.P2*1.0666794869689005
+
+								if isinstance( item, svg.Path ):
+									# print "DEBOK PATH"
+									# print (item.items)
+									# new = svg.Point(item.segments()[0][0])
+									# print item.segments()[0][0]
+									# (12.568,1.972)
+									# (273.000,193.906)
+									# print item.segments()
+									# print ( self.transform_point(item.segments()[0][0], not front ))
+									continue
 
 				
 
@@ -888,13 +976,12 @@ class Svg2ModExport( object ):
 				self._write_library_intro()
 
 				self._write_module( front = True )
-
 				self.edgecut_mode = True
-
 				self._write_edge_cuts( front = True)
 
 				self.edgecut_mode = False
-				
+
+				self._write_footprint(front = True)
 				self._write_wirepad()
 				self._write_pcb_footer()
 
@@ -970,7 +1057,7 @@ class Svg2ModExportPretty( Svg2ModExport ):
 
 					for drill in item.items:
 						count = count + 1
-						print drill.matrix.vect
+						# print drill.matrix.vect
 						old_center = drill.center
 						# drill.transform(item.matrix)
 						new_center = drill.center
