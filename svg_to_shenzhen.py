@@ -978,7 +978,7 @@ class Svg2ModExportPretty( Svg2ModExport ):
 						# transx = ((new_center.x - old_center.x) * 2 ) / (96/25.4)
 						# transy = ((new_center.y - old_center.y) * 2 ) / (96/25.4)
 
-						test = svg.Point(drill.center.x*1.0665,drill.center.y*1.0665)
+						test = svg.Point(drill.center.x*1.0666794869689005,drill.center.y*1.0666794869689005)
 						new_pad = self.transform_point(test)
 						pad_x = new_pad.x
 						pad_y = new_pad.y
